@@ -32,13 +32,22 @@ body {
   box-shadow: 0 10px 30px rgba(0,0,0,.25);
 }
 
-h1 {
-  color: #e85d04;
-  margin: 0;
-}
-
 .logo {
   font-size: 55px;
+}
+
+h1 {
+  margin: 0;
+  color: #e85d04;
+  font-size: 30px;
+}
+
+h2 {
+  color: #222;
+}
+
+p {
+  color: #555;
 }
 
 .raspadinha {
@@ -59,7 +68,7 @@ h1 {
   align-items: center;
   justify-content: center;
   padding: 20px;
-  font-size: 21px;
+  font-size: 20px;
   font-weight: bold;
   color: #e85d04;
   text-align: center;
@@ -67,9 +76,11 @@ h1 {
 
 canvas {
   position: absolute;
-  inset: 0;
+  left: 0;
+  top: 0;
   width: 100%;
   height: 100%;
+  cursor: pointer;
   touch-action: none;
 }
 
@@ -97,19 +108,19 @@ button {
 
 .codigo {
   display: none;
+  margin-top: 15px;
+  padding: 12px;
   background: white;
   border: 2px dashed #e85d04;
-  padding: 12px;
-  margin-top: 15px;
   border-radius: 12px;
-  font-size: 20px;
+  font-size: 19px;
   font-weight: bold;
 }
 
 .aviso {
-  color: #777;
-  font-size: 13px;
   margin-top: 15px;
+  font-size: 13px;
+  color: #777;
 }
 </style>
 </head>
@@ -124,12 +135,12 @@ button {
 
   <h2>🎟️ Raspadinha Premiada</h2>
 
-  <p>Raspe para descobrir seu prêmio!</p>
+  <p>Raspe a área abaixo para descobrir seu prêmio!</p>
 
   <div class="raspadinha">
 
     <div id="resultado">
-      Verificando sua raspadinha...
+      🎁 Seu prêmio está escondido!
     </div>
 
     <canvas id="canvas"></canvas>
@@ -147,8 +158,8 @@ button {
   </button>
 
   <div class="aviso">
-    Esta raspadinha é válida uma única vez.<br>
-    Faça uma nova compra para receber uma nova raspadinha.
+    Esta raspadinha só pode ser utilizada uma vez.<br>
+    Faça outra compra para receber uma nova.
   </div>
 
 </div>
@@ -161,55 +172,57 @@ const SUPABASE_URL =
 const SUPABASE_KEY =
 "sb_publishable_3t4uoXlM7W2lSzyTBMoW4w_BXs2usXz";
 
+
 const canvas = document.getElementById("canvas");
 const ctx = canvas.getContext("2d");
 
 const resultado = document.getElementById("resultado");
-const codigoDiv = document.getElementById("codigo");
 const revelar = document.getElementById("revelar");
+const codigoDiv = document.getElementById("codigo");
 const whatsapp = document.getElementById("whatsapp");
 
-let dados = null;
-let raspado = false;
 
+/* CÓDIGO DO LINK */
 
-/* PEGAR CÓDIGO DO LINK */
+const parametros =
+new URLSearchParams(window.location.search);
 
-const parametros = new URLSearchParams(window.location.search);
+const codigoRaspadinha =
+parametros.get("codigo");
 
-const codigoRaspadinha = parametros.get("codigo");
-
-
-/* SE NÃO EXISTIR CÓDIGO */
 
 if (!codigoRaspadinha) {
 
   resultado.innerText =
-  "❌ Esta raspadinha não possui um código válido.";
+  "❌ Link de raspadinha inválido.";
 
   revelar.style.display = "none";
-
 }
 
 
-/* TAMANHO DA RASPADINHA */
+/* CONFIGURAR RASPADINHA */
 
-function ajustarCanvas() {
+function configurarCanvas() {
 
-  const rect = canvas.getBoundingClientRect();
+  const largura =
+  canvas.parentElement.clientWidth;
 
-  canvas.width = rect.width;
-  canvas.height = rect.height;
+  const altura =
+  canvas.parentElement.clientHeight;
 
-  ctx.globalCompositeOperation = "source-over";
+  canvas.width = largura;
+  canvas.height = altura;
+
+  ctx.globalCompositeOperation =
+  "source-over";
 
   ctx.fillStyle = "#bdbdbd";
 
   ctx.fillRect(
     0,
     0,
-    canvas.width,
-    canvas.height
+    largura,
+    altura
   );
 
   ctx.fillStyle = "#666";
@@ -218,78 +231,19 @@ function ajustarCanvas() {
 
   ctx.textAlign = "center";
 
+  ctx.textBaseline = "middle";
+
   ctx.fillText(
     "RASPE AQUI 🎟️",
-    canvas.width / 2,
-    canvas.height / 2
+    largura / 2,
+    altura / 2
   );
-}
-
-
-/* CONSULTAR RASPADINHA */
-
-async function carregarRaspadinha() {
-
-  try {
-
-    const resposta = await fetch(
-      SUPABASE_URL +
-      "/rest/v1/cupons?codigo=eq." +
-      encodeURIComponent(codigoRaspadinha) +
-      "&select=*",
-      {
-        headers: {
-          "apikey": SUPABASE_KEY,
-          "Authorization":
-          "Bearer " + SUPABASE_KEY
-        }
-      }
-    );
-
-    const lista = await resposta.json();
-
-    if (!lista.length) {
-
-      resultado.innerText =
-      "❌ Raspadinha inválida ou inexistente.";
-
-      revelar.style.display = "none";
-
-      return;
-    }
-
-    const cupom = lista[0];
-
-    dados = cupom;
-
-    if (cupom.sorteado === true) {
-
-      resultado.innerText =
-      "Esta raspadinha já foi utilizada.";
-
-      revelar.style.display = "none";
-
-      return;
-    }
-
-    resultado.innerText =
-    "Raspe para descobrir seu prêmio!";
-
-  } catch (erro) {
-
-    console.error(erro);
-
-    resultado.innerText =
-    "Erro ao conectar com a raspadinha.";
-  }
 }
 
 
 /* RASPAR */
 
 function raspar(x, y) {
-
-  if (raspado || !dados) return;
 
   ctx.globalCompositeOperation =
   "destination-out";
@@ -308,152 +262,7 @@ function raspar(x, y) {
 }
 
 
-/* VERIFICAR QUANTO FOI RASPADO */
-
-function verificarRevelacao() {
-
-  const imagem =
-  ctx.getImageData(
-    0,
-    0,
-    canvas.width,
-    canvas.height
-  );
-
-  let apagados = 0;
-
-  for (
-    let i = 3;
-    i < imagem.data.length;
-    i += 4
-  ) {
-
-    if (imagem.data[i] < 100) {
-      apagados++;
-    }
-  }
-
-  const porcentagem =
-  apagados /
-  (imagem.data.length / 4);
-
-  if (porcentagem > 0.45) {
-
-    finalizarRaspadinha();
-
-  }
-}
-
-
-/* FINALIZAR */
-
-async function finalizarRaspadinha() {
-
-  if (raspado || !dados) return;
-
-  raspado = true;
-
-  try {
-
-    const resposta =
-    await fetch(
-      SUPABASE_URL +
-      "/rest/v1/rpc/gerar_premio_cupom",
-      {
-        method: "POST",
-
-        headers: {
-          "Content-Type":
-          "application/json",
-
-          "apikey":
-          SUPABASE_KEY,
-
-          "Authorization":
-          "Bearer " + SUPABASE_KEY
-        },
-
-        body: JSON.stringify({
-          codigo_cupom:
-          codigoRaspadinha
-        })
-      }
-    );
-
-    const resultadoServidor =
-    await resposta.json();
-
-    if (!resultadoServidor.sucesso) {
-
-      resultado.innerText =
-      resultadoServidor.mensagem ||
-      "Não foi possível revelar.";
-
-      return;
-    }
-
-    dados = resultadoServidor;
-
-    ctx.clearRect(
-      0,
-      0,
-      canvas.width,
-      canvas.height
-    );
-
-    resultado.innerText =
-    resultadoServidor.premio;
-
-    codigoDiv.style.display = "block";
-
-    codigoDiv.innerText =
-    "CÓDIGO: " +
-    resultadoServidor.codigo;
-
-    revelar.style.display = "none";
-
-    whatsapp.style.display = "block";
-
-  } catch (erro) {
-
-    console.error(erro);
-
-    resultado.innerText =
-    "Erro ao revelar a raspadinha.";
-  }
-}
-
-
-/* BOTÃO REVELAR */
-
-revelar.addEventListener(
-  "click",
-  finalizarRaspadinha
-);
-
-
 /* MOUSE */
-
-canvas.addEventListener(
-  "mousemove",
-  function(e) {
-
-    if (e.buttons !== 1) return;
-
-    const rect =
-    canvas.getBoundingClientRect();
-
-    raspar(
-      e.clientX - rect.left,
-      e.clientY - rect.top
-    );
-
-    verificarRevelacao();
-  }
-);
-
-
-/* MOUSE CLIQUE */
 
 canvas.addEventListener(
   "mousedown",
@@ -470,7 +279,45 @@ canvas.addEventListener(
 );
 
 
+canvas.addEventListener(
+  "mousemove",
+  function(e) {
+
+    if (e.buttons !== 1) return;
+
+    const rect =
+    canvas.getBoundingClientRect();
+
+    raspar(
+      e.clientX - rect.left,
+      e.clientY - rect.top
+    );
+  }
+);
+
+
 /* CELULAR */
+
+canvas.addEventListener(
+  "touchstart",
+  function(e) {
+
+    e.preventDefault();
+
+    const rect =
+    canvas.getBoundingClientRect();
+
+    const toque =
+    e.touches[0];
+
+    raspar(
+      toque.clientX - rect.left,
+      toque.clientY - rect.top
+    );
+  },
+  { passive: false }
+);
+
 
 canvas.addEventListener(
   "touchmove",
@@ -488,45 +335,149 @@ canvas.addEventListener(
       toque.clientX - rect.left,
       toque.clientY - rect.top
     );
-
-    verificarRevelacao();
-
   },
   { passive: false }
 );
 
 
-/* WHATSAPP */
+/* REVELAR PRÊMIO */
 
-whatsapp.addEventListener(
-  "click",
-  function() {
+async function revelarPremio() {
 
-    const mensagem =
-    "🍕 GARFIELD PIZZARIA 🐱\n\n" +
-    "🎟️ Minha raspadinha:\n" +
-    dados.premio +
-    "\n\n🔑 Código: " +
-    dados.codigo +
-    "\n\nQuero usar meu prêmio!";
+  if (!codigoRaspadinha) return;
 
-    window.open(
-      "https://wa.me/?text=" +
-      encodeURIComponent(mensagem),
-      "_blank"
+  revelar.disabled = true;
+
+  revelar.innerText =
+  "⏳ Revelando...";
+
+
+  try {
+
+    const resposta =
+    await fetch(
+      SUPABASE_URL +
+      "/rest/v1/rpc/gerar_premio_cupom",
+      {
+        method: "POST",
+
+        headers: {
+          "Content-Type": "application/json",
+          "apikey": SUPABASE_KEY,
+          "Authorization":
+          "Bearer " + SUPABASE_KEY
+        },
+
+        body: JSON.stringify({
+          codigo_cupom:
+          codigoRaspadinha
+        })
+      }
     );
 
+
+    const dados =
+    await resposta.json();
+
+
+    if (!resposta.ok) {
+
+      throw new Error(
+        JSON.stringify(dados)
+      );
+    }
+
+
+    if (!dados.sucesso) {
+
+      resultado.innerText =
+      dados.mensagem ||
+      "Esta raspadinha não está disponível.";
+
+      revelar.style.display = "none";
+
+      return;
+    }
+
+
+    /* MOSTRAR PRÊMIO */
+
+    ctx.clearRect(
+      0,
+      0,
+      canvas.width,
+      canvas.height
+    );
+
+    resultado.innerText =
+    dados.premio;
+
+
+    codigoDiv.style.display =
+    "block";
+
+    codigoDiv.innerText =
+    "🎟️ CÓDIGO: " +
+    dados.codigo;
+
+
+    revelar.style.display =
+    "none";
+
+    whatsapp.style.display =
+    "block";
+
+
+    whatsapp.onclick =
+    function() {
+
+      const mensagem =
+      "🍕 GARFIELD PIZZARIA 🐱\n\n" +
+      "🎟️ Minha raspadinha deu:\n" +
+      dados.premio +
+      "\n\n🔑 Código: " +
+      dados.codigo +
+      "\n\nQuero usar meu prêmio!";
+
+      window.open(
+        "https://wa.me/?text=" +
+        encodeURIComponent(mensagem),
+        "_blank"
+      );
+    };
+
+
+  } catch (erro) {
+
+    console.error(erro);
+
+    resultado.innerText =
+    "❌ Erro ao revelar. Tente novamente.";
+
+    revelar.disabled = false;
+
+    revelar.innerText =
+    "✨ REVELAR MEU PRÊMIO";
   }
+}
+
+
+/* BOTÃO */
+
+revelar.addEventListener(
+  "click",
+  revelarPremio
 );
 
 
 /* INICIAR */
 
-ajustarCanvas();
+configurarCanvas();
 
-if (codigoRaspadinha) {
-  carregarRaspadinha();
-}
+window.addEventListener(
+  "resize",
+  configurarCanvas
+);
 
 </script>
 
