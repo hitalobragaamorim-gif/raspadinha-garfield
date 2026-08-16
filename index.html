@@ -202,20 +202,18 @@ document.getElementById("whatsapp");
 
 
 /* ================================
-   PEGAR CÓDIGO DA URL
+   CÓDIGO DA URL
 ================================ */
 
 const parametros =
-new URLSearchParams(
-window.location.search
-);
+new URLSearchParams(window.location.search);
 
 const codigoRaspadinha =
 parametros.get("codigo");
 
 
 /* ================================
-   CONFIGURAR CANVAS
+   CANVAS
 ================================ */
 
 function configurarCanvas() {
@@ -261,7 +259,7 @@ function configurarCanvas() {
 
 
 /* ================================
-   MOSTRAR RESULTADO JÁ USADO
+   MOSTRAR RASPADINHA USADA
 ================================ */
 
 function mostrarResultadoAnterior(dados) {
@@ -274,20 +272,21 @@ function mostrarResultadoAnterior(dados) {
   );
 
   resultado.innerText =
-  dados.premio || "Prêmio já utilizado.";
+    dados.premio ||
+    "Esta raspadinha já foi utilizada.";
 
   codigoDiv.style.display =
-  "block";
+    "block";
 
   codigoDiv.innerText =
-  "🎟️ CÓDIGO: " +
-  dados.codigo;
+    "🎟️ CÓDIGO: " +
+    dados.codigo;
 
   revelar.style.display =
-  "none";
+    "none";
 
   whatsapp.style.display =
-  "block";
+    "block";
 
   configurarWhatsApp(dados);
 }
@@ -299,8 +298,7 @@ function mostrarResultadoAnterior(dados) {
 
 function configurarWhatsApp(dados) {
 
-  whatsapp.onclick =
-  function() {
+  whatsapp.onclick = function() {
 
     const mensagem =
       "🍕 GARFIELD PIZZARIA 🐱\n\n" +
@@ -373,15 +371,29 @@ async function verificarRaspadinha() {
     );
 
     if (!resposta.ok) {
-
-      throw new Error(texto);
+      throw new Error(
+        "Erro HTTP " +
+        resposta.status +
+        ": " +
+        texto
+      );
     }
 
-    const dados =
+    const bruto =
       JSON.parse(texto);
 
+    /*
+      O Supabase pode retornar:
+      objeto ou array.
+    */
+
+    const dados =
+      Array.isArray(bruto)
+        ? bruto[0]
+        : bruto;
+
     console.log(
-      "Dados:",
+      "Dados interpretados:",
       dados
     );
 
@@ -392,11 +404,13 @@ async function verificarRaspadinha() {
     ) {
 
       throw new Error(
-        "Resposta inválida do Supabase."
+        "Resposta inválida: " +
+        JSON.stringify(bruto)
       );
     }
 
-    /* JÁ FOI USADA */
+
+    /* CÓDIGO JÁ USADO */
 
     if (dados.usado === true) {
 
@@ -407,7 +421,8 @@ async function verificarRaspadinha() {
       return;
     }
 
-    /* NOVA RASPADINHA */
+
+    /* CÓDIGO NOVO */
 
     resultado.innerText =
       "🎁 RASPE AQUI E DESCUBRA SEU PRÊMIO!";
@@ -466,11 +481,8 @@ canvas.addEventListener(
       canvas.getBoundingClientRect();
 
     raspar(
-      e.clientX -
-      rect.left,
-
-      e.clientY -
-      rect.top
+      e.clientX - rect.left,
+      e.clientY - rect.top
     );
   }
 );
@@ -487,11 +499,8 @@ canvas.addEventListener(
       canvas.getBoundingClientRect();
 
     raspar(
-      e.clientX -
-      rect.left,
-
-      e.clientY -
-      rect.top
+      e.clientX - rect.left,
+      e.clientY - rect.top
     );
   }
 );
@@ -514,11 +523,8 @@ canvas.addEventListener(
       e.touches[0];
 
     raspar(
-      toque.clientX -
-      rect.left,
-
-      toque.clientY -
-      rect.top
+      toque.clientX - rect.left,
+      toque.clientY - rect.top
     );
   },
   { passive: false }
@@ -538,11 +544,8 @@ canvas.addEventListener(
       e.touches[0];
 
     raspar(
-      toque.clientX -
-      rect.left,
-
-      toque.clientY -
-      rect.top
+      toque.clientX - rect.left,
+      toque.clientY - rect.top
     );
   },
   { passive: false }
@@ -602,28 +605,42 @@ async function revelarPremio() {
 
     if (!resposta.ok) {
 
-      throw new Error(texto);
+      throw new Error(
+        "Erro HTTP " +
+        resposta.status +
+        ": " +
+        texto
+      );
     }
 
-    const dados =
+    const bruto =
       JSON.parse(texto);
+
+    const dados =
+      Array.isArray(bruto)
+        ? bruto[0]
+        : bruto;
 
     console.log(
       "Resultado sorteio:",
       dados
     );
 
-    if (!dados.sucesso) {
+
+    if (!dados || dados.sucesso !== true) {
 
       resultado.innerText =
-        dados.mensagem ||
-        "Esta raspadinha já foi utilizada.";
+        dados &&
+        dados.mensagem
+          ? dados.mensagem
+          : "Esta raspadinha já foi utilizada.";
 
       revelar.style.display =
         "none";
 
       return;
     }
+
 
     /* MOSTRAR PRÊMIO */
 
@@ -674,7 +691,7 @@ async function revelarPremio() {
 
 
 /* ================================
-   BOTÃO
+   BOTÃO REVELAR
 ================================ */
 
 revelar.addEventListener(
