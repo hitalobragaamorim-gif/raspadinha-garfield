@@ -1,3 +1,4 @@
+```html
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -166,6 +167,10 @@ button {
 
 <script>
 
+/* ================================
+   SUPABASE
+================================ */
+
 const SUPABASE_URL =
 "https://wbsabsmgyxbalqmmssxd.supabase.co";
 
@@ -173,25 +178,45 @@ const SUPABASE_KEY =
 "sb_publishable_3t4uoXlM7W2lSzyTBMoW4w_BXs2usXz";
 
 
-const canvas = document.getElementById("canvas");
-const ctx = canvas.getContext("2d");
+/* ================================
+   ELEMENTOS
+================================ */
 
-const resultado = document.getElementById("resultado");
-const revelar = document.getElementById("revelar");
-const codigoDiv = document.getElementById("codigo");
-const whatsapp = document.getElementById("whatsapp");
+const canvas =
+document.getElementById("canvas");
+
+const ctx =
+canvas.getContext("2d");
+
+const resultado =
+document.getElementById("resultado");
+
+const revelar =
+document.getElementById("revelar");
+
+const codigoDiv =
+document.getElementById("codigo");
+
+const whatsapp =
+document.getElementById("whatsapp");
 
 
-/* CÓDIGO DO LINK */
+/* ================================
+   PEGAR CÓDIGO DA URL
+================================ */
 
 const parametros =
-new URLSearchParams(window.location.search);
+new URLSearchParams(
+window.location.search
+);
 
 const codigoRaspadinha =
 parametros.get("codigo");
 
 
-/* CONFIGURAR RASPADINHA */
+/* ================================
+   CONFIGURAR CANVAS
+================================ */
 
 function configurarCanvas() {
 
@@ -218,11 +243,14 @@ function configurarCanvas() {
 
   ctx.fillStyle = "#666";
 
-  ctx.font = "bold 24px Arial";
+  ctx.font =
+  "bold 24px Arial";
 
-  ctx.textAlign = "center";
+  ctx.textAlign =
+  "center";
 
-  ctx.textBaseline = "middle";
+  ctx.textBaseline =
+  "middle";
 
   ctx.fillText(
     "RASPE AQUI 🎟️",
@@ -232,7 +260,9 @@ function configurarCanvas() {
 }
 
 
-/* MOSTRAR RESULTADO JÁ UTILIZADO */
+/* ================================
+   MOSTRAR RESULTADO JÁ USADO
+================================ */
 
 function mostrarResultadoAnterior(dados) {
 
@@ -244,7 +274,7 @@ function mostrarResultadoAnterior(dados) {
   );
 
   resultado.innerText =
-  dados.premio;
+  dados.premio || "Prêmio já utilizado.";
 
   codigoDiv.style.display =
   "block";
@@ -263,7 +293,9 @@ function mostrarResultadoAnterior(dados) {
 }
 
 
-/* WHATSAPP */
+/* ================================
+   WHATSAPP
+================================ */
 
 function configurarWhatsApp(dados) {
 
@@ -271,12 +303,12 @@ function configurarWhatsApp(dados) {
   function() {
 
     const mensagem =
-    "🍕 GARFIELD PIZZARIA 🐱\n\n" +
-    "🎟️ Minha raspadinha deu:\n" +
-    dados.premio +
-    "\n\n🔑 Código: " +
-    dados.codigo +
-    "\n\nQuero usar meu prêmio!";
+      "🍕 GARFIELD PIZZARIA 🐱\n\n" +
+      "🎟️ Minha raspadinha deu:\n" +
+      dados.premio +
+      "\n\n🔑 Código: " +
+      dados.codigo +
+      "\n\nQuero usar meu prêmio!";
 
     window.open(
       "https://wa.me/?text=" +
@@ -287,17 +319,19 @@ function configurarWhatsApp(dados) {
 }
 
 
-/* VERIFICAR SE A RASPADINHA JÁ FOI USADA */
+/* ================================
+   CONSULTAR RASPADINHA
+================================ */
 
 async function verificarRaspadinha() {
 
   if (!codigoRaspadinha) {
 
     resultado.innerText =
-    "❌ Link de raspadinha inválido.";
+      "❌ Link de raspadinha inválido.";
 
     revelar.style.display =
-    "none";
+      "none";
 
     return;
   }
@@ -305,46 +339,64 @@ async function verificarRaspadinha() {
   try {
 
     const resposta =
-    await fetch(
-      SUPABASE_URL +
-      "/rest/v1/rpc/consultar_raspadinha",
-      {
-        method: "POST",
+      await fetch(
+        SUPABASE_URL +
+        "/rest/v1/rpc/consultar_raspadinha",
+        {
+          method: "POST",
 
-        headers: {
-          "Content-Type":
-          "application/json",
+          headers: {
+            "Content-Type":
+              "application/json",
 
-          "apikey":
-          SUPABASE_KEY,
+            "apikey":
+              SUPABASE_KEY,
 
-          "Authorization":
-          "Bearer " + SUPABASE_KEY
-        },
+            "Authorization":
+              "Bearer " +
+              SUPABASE_KEY
+          },
 
-        body: JSON.stringify({
-          codigo_cupom:
-          codigoRaspadinha
-        })
-      }
+          body: JSON.stringify({
+            codigo_cupom:
+              codigoRaspadinha
+          })
+        }
+      );
+
+    const texto =
+      await resposta.text();
+
+    console.log(
+      "Resposta Supabase:",
+      texto
     );
-
-
-    const dados =
-    await resposta.json();
-
 
     if (!resposta.ok) {
 
-      console.error(dados);
+      throw new Error(texto);
+    }
+
+    const dados =
+      JSON.parse(texto);
+
+    console.log(
+      "Dados:",
+      dados
+    );
+
+    if (
+      !dados ||
+      typeof dados.usado ===
+      "undefined"
+    ) {
 
       throw new Error(
-        JSON.stringify(dados)
+        "Resposta inválida do Supabase."
       );
     }
 
-
-    /* CÓDIGO JÁ UTILIZADO */
+    /* JÁ FOI USADA */
 
     if (dados.usado === true) {
 
@@ -355,31 +407,38 @@ async function verificarRaspadinha() {
       return;
     }
 
-
-    /* CÓDIGO AINDA NÃO UTILIZADO */
+    /* NOVA RASPADINHA */
 
     resultado.innerText =
-    "🎁 RASPE AQUI E DESCUBRA SEU PRÊMIO!";
+      "🎁 RASPE AQUI E DESCUBRA SEU PRÊMIO!";
+
+    revelar.style.display =
+      "block";
 
   } catch (erro) {
 
-    console.error(erro);
+    console.error(
+      "Erro ao consultar:",
+      erro
+    );
 
     resultado.innerText =
-    "❌ Não foi possível verificar esta raspadinha.";
+      "❌ Não foi possível verificar esta raspadinha.";
 
     revelar.style.display =
-    "none";
+      "none";
   }
 }
 
 
-/* RASPAR */
+/* ================================
+   RASPAR
+================================ */
 
 function raspar(x, y) {
 
   ctx.globalCompositeOperation =
-  "destination-out";
+    "destination-out";
 
   ctx.beginPath();
 
@@ -395,18 +454,23 @@ function raspar(x, y) {
 }
 
 
-/* MOUSE */
+/* ================================
+   MOUSE
+================================ */
 
 canvas.addEventListener(
   "mousedown",
   function(e) {
 
     const rect =
-    canvas.getBoundingClientRect();
+      canvas.getBoundingClientRect();
 
     raspar(
-      e.clientX - rect.left,
-      e.clientY - rect.top
+      e.clientX -
+      rect.left,
+
+      e.clientY -
+      rect.top
     );
   }
 );
@@ -416,20 +480,26 @@ canvas.addEventListener(
   "mousemove",
   function(e) {
 
-    if (e.buttons !== 1) return;
+    if (e.buttons !== 1)
+      return;
 
     const rect =
-    canvas.getBoundingClientRect();
+      canvas.getBoundingClientRect();
 
     raspar(
-      e.clientX - rect.left,
-      e.clientY - rect.top
+      e.clientX -
+      rect.left,
+
+      e.clientY -
+      rect.top
     );
   }
 );
 
 
-/* CELULAR */
+/* ================================
+   CELULAR
+================================ */
 
 canvas.addEventListener(
   "touchstart",
@@ -438,14 +508,17 @@ canvas.addEventListener(
     e.preventDefault();
 
     const rect =
-    canvas.getBoundingClientRect();
+      canvas.getBoundingClientRect();
 
     const toque =
-    e.touches[0];
+      e.touches[0];
 
     raspar(
-      toque.clientX - rect.left,
-      toque.clientY - rect.top
+      toque.clientX -
+      rect.left,
+
+      toque.clientY -
+      rect.top
     );
   },
   { passive: false }
@@ -459,87 +532,100 @@ canvas.addEventListener(
     e.preventDefault();
 
     const rect =
-    canvas.getBoundingClientRect();
+      canvas.getBoundingClientRect();
 
     const toque =
-    e.touches[0];
+      e.touches[0];
 
     raspar(
-      toque.clientX - rect.left,
-      toque.clientY - rect.top
+      toque.clientX -
+      rect.left,
+
+      toque.clientY -
+      rect.top
     );
   },
   { passive: false }
 );
 
 
-/* REVELAR PRÊMIO */
+/* ================================
+   REVELAR PRÊMIO
+================================ */
 
 async function revelarPremio() {
 
-  if (!codigoRaspadinha) return;
+  if (!codigoRaspadinha)
+    return;
 
   revelar.disabled =
-  true;
+    true;
 
   revelar.innerText =
-  "⏳ Revelando...";
-
+    "⏳ Revelando...";
 
   try {
 
     const resposta =
-    await fetch(
-      SUPABASE_URL +
-      "/rest/v1/rpc/gerar_premio_cupom",
-      {
-        method: "POST",
+      await fetch(
+        SUPABASE_URL +
+        "/rest/v1/rpc/gerar_premio_cupom",
+        {
+          method: "POST",
 
-        headers: {
-          "Content-Type":
-          "application/json",
+          headers: {
+            "Content-Type":
+              "application/json",
 
-          "apikey":
-          SUPABASE_KEY,
+            "apikey":
+              SUPABASE_KEY,
 
-          "Authorization":
-          "Bearer " + SUPABASE_KEY
-        },
+            "Authorization":
+              "Bearer " +
+              SUPABASE_KEY
+          },
 
-        body: JSON.stringify({
-          codigo_cupom:
-          codigoRaspadinha
-        })
-      }
+          body: JSON.stringify({
+            codigo_cupom:
+              codigoRaspadinha
+          })
+        }
+      );
+
+    const texto =
+      await resposta.text();
+
+    console.log(
+      "Resposta sorteio:",
+      texto
     );
-
-
-    const dados =
-    await resposta.json();
-
 
     if (!resposta.ok) {
 
-      throw new Error(
-        JSON.stringify(dados)
-      );
+      throw new Error(texto);
     }
 
+    const dados =
+      JSON.parse(texto);
+
+    console.log(
+      "Resultado sorteio:",
+      dados
+    );
 
     if (!dados.sucesso) {
 
       resultado.innerText =
-      dados.mensagem ||
-      "Esta raspadinha já foi utilizada.";
+        dados.mensagem ||
+        "Esta raspadinha já foi utilizada.";
 
       revelar.style.display =
-      "none";
+        "none";
 
       return;
     }
 
-
-    /* MOSTRAR O PRÊMIO */
+    /* MOSTRAR PRÊMIO */
 
     ctx.clearRect(
       0,
@@ -549,45 +635,47 @@ async function revelarPremio() {
     );
 
     resultado.innerText =
-    dados.premio;
-
+      dados.premio;
 
     codigoDiv.style.display =
-    "block";
+      "block";
 
     codigoDiv.innerText =
-    "🎟️ CÓDIGO: " +
-    dados.codigo;
-
+      "🎟️ CÓDIGO: " +
+      dados.codigo;
 
     revelar.style.display =
-    "none";
+      "none";
 
     whatsapp.style.display =
-    "block";
+      "block";
 
     configurarWhatsApp(
       dados
     );
 
-
   } catch (erro) {
 
-    console.error(erro);
+    console.error(
+      "Erro ao revelar:",
+      erro
+    );
 
     resultado.innerText =
-    "❌ Erro ao revelar. Tente novamente.";
+      "❌ Erro ao revelar. Tente novamente.";
 
     revelar.disabled =
-    false;
+      false;
 
     revelar.innerText =
-    "✨ REVELAR MEU PRÊMIO";
+      "✨ REVELAR MEU PRÊMIO";
   }
 }
 
 
-/* BOTÃO REVELAR */
+/* ================================
+   BOTÃO
+================================ */
 
 revelar.addEventListener(
   "click",
@@ -595,7 +683,9 @@ revelar.addEventListener(
 );
 
 
-/* INICIAR */
+/* ================================
+   INICIAR
+================================ */
 
 async function iniciar() {
 
@@ -616,3 +706,4 @@ window.addEventListener(
 
 </body>
 </html>
+```
