@@ -1,117 +1,126 @@
-```html
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
 <title>Raspadinha Garfield Pizzaria</title>
 
 <style>
-*{box-sizing:border-box}
+*{
+  box-sizing:border-box;
+}
 
 body{
-margin:0;
-min-height:100vh;
-font-family:Arial,sans-serif;
-background:linear-gradient(180deg,#ffb300,#ff7a00);
-display:flex;
-justify-content:center;
-align-items:center;
-padding:20px
+  margin:0;
+  min-height:100vh;
+  font-family:Arial,sans-serif;
+  background:linear-gradient(180deg,#ffb300,#ff7a00);
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  padding:20px;
 }
 
 .container{
-width:100%;
-max-width:420px;
-background:#fff8df;
-border-radius:25px;
-padding:25px 20px;
-text-align:center;
-box-shadow:0 10px 30px rgba(0,0,0,.25)
+  width:100%;
+  max-width:420px;
+  background:#fff8df;
+  border-radius:25px;
+  padding:25px 20px;
+  text-align:center;
+  box-shadow:0 10px 30px rgba(0,0,0,.25);
 }
 
-.logo{font-size:55px}
+.logo{
+  font-size:55px;
+}
 
 h1{
-margin:0;
-color:#e85d04;
-font-size:30px
+  margin:0;
+  color:#e85d04;
+  font-size:30px;
 }
 
-h2{color:#222}
-p{color:#555}
+h2{
+  color:#222;
+}
+
+p{
+  color:#555;
+}
 
 .raspadinha{
-position:relative;
-width:100%;
-height:190px;
-margin:20px auto;
-border-radius:18px;
-overflow:hidden;
-background:white;
-border:4px solid #e85d04
+  position:relative;
+  width:100%;
+  height:190px;
+  margin:20px auto;
+  border-radius:18px;
+  overflow:hidden;
+  background:white;
+  border:4px solid #e85d04;
 }
 
 #resultado{
-width:100%;
-height:100%;
-display:flex;
-align-items:center;
-justify-content:center;
-padding:20px;
-font-size:20px;
-font-weight:bold;
-color:#e85d04;
-text-align:center
+  width:100%;
+  height:100%;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding:20px;
+  font-size:20px;
+  font-weight:bold;
+  color:#e85d04;
+  text-align:center;
 }
 
 canvas{
-position:absolute;
-left:0;
-top:0;
-width:100%;
-height:100%;
-cursor:pointer;
-touch-action:none
+  position:absolute;
+  left:0;
+  top:0;
+  width:100%;
+  height:100%;
+  cursor:pointer;
+  touch-action:none;
 }
 
 button{
-width:100%;
-border:0;
-border-radius:12px;
-padding:15px;
-margin-top:10px;
-font-size:18px;
-font-weight:bold;
-cursor:pointer
+  width:100%;
+  border:0;
+  border-radius:12px;
+  padding:15px;
+  margin-top:10px;
+  font-size:18px;
+  font-weight:bold;
+  cursor:pointer;
 }
 
 #revelar{
-background:#e85d04;
-color:white
+  background:#e85d04;
+  color:white;
 }
 
 #whatsapp{
-display:none;
-background:#25D366;
-color:white
+  display:none;
+  background:#25D366;
+  color:white;
 }
 
 .codigo{
-display:none;
-margin-top:15px;
-padding:12px;
-background:white;
-border:2px dashed #e85d04;
-border-radius:12px;
-font-size:19px;
-font-weight:bold
+  display:none;
+  margin-top:15px;
+  padding:12px;
+  background:white;
+  border:2px dashed #e85d04;
+  border-radius:12px;
+  font-size:19px;
+  font-weight:bold;
 }
 
 .aviso{
-margin-top:15px;
-font-size:13px;
-color:#777
+  margin-top:15px;
+  font-size:13px;
+  color:#777;
 }
 </style>
 </head>
@@ -157,25 +166,26 @@ Faça outra compra para receber uma nova.
 
 <script>
 
-/* ==========================
-   SUPABASE
-========================== */
+/* =========================
+   SUPABASE NOVO PROJETO
+========================= */
 
 const SUPABASE_URL =
-"https://wbsabsmgyxbalqmmssxd.supabase.co";
+"https://vcyycusqwylvnowkxxqv.supabase.co";
 
 /*
-COLE AQUI A SUA CHAVE PUBLICÁVEL
-Ela começa com sb_publishable_
+   COLE ABAIXO A CHAVE
+   PUBLICÁVEL QUE VOCÊ COPIOU
+   DO PROJETO NOVO
 */
 
 const SUPABASE_KEY =
-"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZjeXljdXNxd3lsdm5vd2t4eHF2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODY4MTkxNjMsImV4cCI6MjEwMjM5NTE2M30.MS6jgAa0m7xm4GRWmZrP7TAgjlrY07CvPT_BFvbp0v4";
+"COLE_AQUI_A_CHAVE_NOVA";
 
 
-/* ==========================
+/* =========================
    ELEMENTOS
-========================== */
+========================= */
 
 const canvas =
 document.getElementById("canvas");
@@ -196,9 +206,9 @@ const whatsapp =
 document.getElementById("whatsapp");
 
 
-/* ==========================
+/* =========================
    CÓDIGO DA URL
-========================== */
+========================= */
 
 const parametros =
 new URLSearchParams(
@@ -209,9 +219,9 @@ const codigoRaspadinha =
 parametros.get("codigo");
 
 
-/* ==========================
+/* =========================
    CANVAS
-========================== */
+========================= */
 
 function configurarCanvas(){
 
@@ -251,40 +261,9 @@ altura/2
 }
 
 
-/* ==========================
-   MOSTRAR RESULTADO USADO
-========================== */
-
-function mostrarResultadoAnterior(dados){
-
-ctx.clearRect(
-0,
-0,
-canvas.width,
-canvas.height
-);
-
-resultado.innerText =
-dados.premio ||
-"Esta raspadinha já foi utilizada.";
-
-codigoDiv.style.display="block";
-
-codigoDiv.innerText =
-"🎟️ CÓDIGO: "+
-dados.codigo;
-
-revelar.style.display="none";
-
-whatsapp.style.display="block";
-
-configurarWhatsApp(dados);
-}
-
-
-/* ==========================
+/* =========================
    WHATSAPP
-========================== */
+========================= */
 
 function configurarWhatsApp(dados){
 
@@ -308,9 +287,9 @@ encodeURIComponent(mensagem),
 }
 
 
-/* ==========================
-   CONSULTAR RASPADINHA
-========================== */
+/* =========================
+   CONSULTAR
+========================= */
 
 async function verificarRaspadinha(){
 
@@ -373,35 +352,42 @@ Array.isArray(bruto)
 ? bruto[0]
 : bruto;
 
-console.log(
-"Dados:",
-dados
-);
-
-if(
-!dados ||
-typeof dados.usado==="undefined"
-){
+if(!dados){
 
 throw new Error(
-"Resposta inválida: "+
-JSON.stringify(bruto)
+"Resposta vazia do Supabase."
 );
 }
 
 if(dados.usado===true){
 
-mostrarResultadoAnterior(
-dados
+ctx.clearRect(
+0,
+0,
+canvas.width,
+canvas.height
 );
+
+resultado.innerText =
+dados.premio;
+
+codigoDiv.style.display="block";
+
+codigoDiv.innerText =
+"🎟️ CÓDIGO: "+
+dados.codigo;
+
+revelar.style.display="none";
+
+whatsapp.style.display="block";
+
+configurarWhatsApp(dados);
 
 return;
 }
 
 resultado.innerText =
 "🎁 RASPE AQUI E DESCUBRA SEU PRÊMIO!";
-
-revelar.style.display="block";
 
 }catch(erro){
 
@@ -418,9 +404,9 @@ revelar.style.display="none";
 }
 
 
-/* ==========================
+/* =========================
    RASPAR
-========================== */
+========================= */
 
 function raspar(x,y){
 
@@ -441,9 +427,7 @@ ctx.fill();
 }
 
 
-/* ==========================
-   MOUSE
-========================== */
+/* MOUSE */
 
 canvas.addEventListener(
 "mousedown",
@@ -459,7 +443,6 @@ e.clientY-rect.top
 
 }
 );
-
 
 canvas.addEventListener(
 "mousemove",
@@ -479,9 +462,7 @@ e.clientY-rect.top
 );
 
 
-/* ==========================
-   CELULAR
-========================== */
+/* CELULAR */
 
 canvas.addEventListener(
 "touchstart",
@@ -503,7 +484,6 @@ toque.clientY-rect.top
 },
 {passive:false}
 );
-
 
 canvas.addEventListener(
 "touchmove",
@@ -527,9 +507,9 @@ toque.clientY-rect.top
 );
 
 
-/* ==========================
+/* =========================
    REVELAR PRÊMIO
-========================== */
+========================= */
 
 async function revelarPremio(){
 
@@ -537,7 +517,7 @@ if(!codigoRaspadinha)return;
 
 revelar.disabled=true;
 
-revelar.innerText =
+revelar.innerText=
 "⏳ Revelando...";
 
 try{
@@ -567,7 +547,7 @@ const texto =
 await resposta.text();
 
 console.log(
-"Resposta sorteio:",
+"Resultado sorteio:",
 texto
 );
 
@@ -589,21 +569,11 @@ Array.isArray(bruto)
 ? bruto[0]
 : bruto;
 
-console.log(
-"Resultado:",
-dados
-);
-
-if(
-!dados ||
-dados.sucesso!==true
-){
+if(!dados.sucesso){
 
 resultado.innerText =
-dados &&
-dados.mensagem
-? dados.mensagem
-: "Esta raspadinha já foi utilizada.";
+dados.mensagem ||
+"Esta raspadinha já foi utilizada.";
 
 revelar.style.display="none";
 
@@ -630,9 +600,7 @@ revelar.style.display="none";
 
 whatsapp.style.display="block";
 
-configurarWhatsApp(
-dados
-);
+configurarWhatsApp(dados);
 
 }catch(erro){
 
@@ -646,35 +614,24 @@ resultado.innerText =
 
 revelar.disabled=false;
 
-revelar.innerText =
+revelar.innerText=
 "✨ REVELAR MEU PRÊMIO";
 }
 }
 
 
-/* ==========================
-   BOTÃO
-========================== */
+/* =========================
+   INICIAR
+========================= */
 
 revelar.addEventListener(
 "click",
 revelarPremio
 );
 
-
-/* ==========================
-   INICIAR
-========================== */
-
-async function iniciar(){
-
 configurarCanvas();
 
-await verificarRaspadinha();
-
-}
-
-iniciar();
+verificarRaspadinha();
 
 window.addEventListener(
 "resize",
@@ -685,4 +642,3 @@ configurarCanvas
 
 </body>
 </html>
-```
